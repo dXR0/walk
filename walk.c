@@ -41,7 +41,8 @@ void* dirr(const char *path, int depth)
 	dp = opendir (path);
 	if (dp != NULL) {
 		while (ep = readdir (dp)) {
-			char abs_path[256];
+			char abs_path[8*ep->d_reclen];
+			memset(abs_path, 0, sizeof(abs_path));
 			char *name = ep->d_name;
 			if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0  || strcmp(name, ".git") == 0 ) {
 				continue;
@@ -49,7 +50,6 @@ void* dirr(const char *path, int depth)
 			if (ep->d_type != DT_DIR && no_file) {
 				continue;
 			}
-			memset(abs_path, 0, sizeof(abs_path));
 			strcat(abs_path, path);
 			strcat(abs_path, "/");
 			strcat(abs_path, name);
@@ -66,9 +66,10 @@ void* dirr(const char *path, int depth)
 		}
 		(void) closedir (dp);
 	} else {
-		char msg[256] = "Couldn't open the directory: ";
-		strcat(msg, path);
-		err(msg);
+		fprintf(stderr, prog_name);
+		fprintf(stderr, ": ");
+		fprintf(stderr, "Couldn't open the directory: ");
+		fprintf(stderr, path);
 	}
 }
 
